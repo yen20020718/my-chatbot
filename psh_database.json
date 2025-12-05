@@ -1,0 +1,121 @@
+[
+  {
+    "keywords": [
+      "penn",
+      "state",
+      "harrisburg",
+      "where",
+      "located",
+      "address",
+      "campus"
+    ],
+    "answer": "Penn State Harrisburg is located in Middletown, Pennsylvania near the Harrisburg International Airport."
+  },
+  {
+    "keywords": [
+      "admissions",
+      "apply",
+      "application",
+      "undergraduate",
+      "first year"
+    ],
+    "answer": "The Penn State Harrisburg Library offers books, journals, databases, study spaces, and research help."
+  },
+  {
+    "keywords": [
+      "advising",
+      "academic advising",
+      "advisor",
+      "schedule",
+      "register classes"
+    ],
+    "answer": "The Academic Advisory building is located in the Olmstead Building's left wing, second floor. For other advisory purposes, students can request it online via email."
+  },
+  {
+    "keywords": [
+      "advisor",
+      "advice",
+      "advisory",
+      "registration",
+      "register",
+      "classes",
+      "lionpath",
+      "add drop"
+    ],
+    "answer": "Information Technology Services at Penn State Harrisburg provides help with accounts, passwords, Wi-Fi, software, and classroom technology. You can contact the IT help desk by phone or email, or visit their office on campus right at the Olmstead building's basement floor. The 'Information Technology Services' page on the Harrisburg site lists contact info and help resources."
+  },
+  {
+    "keywords": [
+      "student life",
+      "clubs",
+      "organizations",
+      "activities",
+      "involvement"
+    ],
+    "answer": "Student life at Penn State Harrisburg includes clubs, organizations, student government, cultural groups, academic clubs, and more. You can browse registered organizations and campus events through Student Affairs or the student engagement office at Harrisburg located in the Student Enrichment Center 1st floor."
+  },
+  {
+    "keywords": [
+      "sports",
+      "athletics",
+      "intramural",
+      "recreation"
+    ],
+    "answer": "Penn State Harrisburg students have access to health and counseling resources, including mental health support, through Student Affairs and campus counseling services. For confidential support, appointments, and crisis resources, you can contact them via email or visit in person in the Student Enrichment Center 2nd floor."
+  },
+  {
+    "keywords": [
+      "disability",
+      "accessibility",
+      "accommodations",
+      "student disability resources",
+      "sdr"
+    ],
+    "answer": "Students who need academic or housing accommodations at Penn State Harrisburg should contact Student Disability Resources (SDR). SDR works with students and faculty to arrange reasonable accommodations and support. You can also visit the Student Enrichment Center's 2nd floor to reach their office."
+  },
+  {
+    "keywords": [
+      "parking",
+      "permit",
+      "car",
+      "drive"
+    ],
+    "answer": "Most students who drive to Penn State Harrisburg need a parking permit. Parking is managed by the campus and/or university parking office. You can usually purchase permits and view parking maps online. The location of their office is in the Maintenance and Operations Building."
+  },
+  {
+    "keywords": [
+      "contact",
+      "phone",
+      "email",
+      "who do i call"
+    ],
+    "answer": "General contact information for Penn State Harrisburg, including phone numbers and emails for offices like Housing & Food Services, IT, Athletics, and International Programs, is available on the 'Contact Us' page of the Harrisburg website. That page lists many key offices with phone numbers and email addresses."
+  },
+  {
+    "keywords": [
+      "internship",
+      "co-op",
+      "career services",
+      "jobs"
+    ],
+    "answer": "Career Services at Penn State Harrisburg help students with internships, co-ops, job search, résumés, interviewing, and graduate school planning. You can also use Nittany Lion Careers to search for opportunities. Check the Harrisburg Career Services page for workshops, appointments, and resources. You can also contact them in person in the Student Enrichment Center 2nd floor."
+  },
+  {
+    "keywords": [
+      "hello"
+    ],
+    "answer": "hello"
+  },
+  {
+    "keywords": [
+      "admission"
+    ],
+    "answer": "admissions"
+  },
+  {
+    "keywords": [
+      "hi"
+    ],
+    "answer": "ok"
+  }
+]

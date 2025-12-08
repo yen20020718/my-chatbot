@@ -19,7 +19,7 @@
       "undergraduate",
       "first year"
     ],
-    "answer": "The Penn State Harrisburg Library offers books, journals, databases, study spaces, and research help."
+    "answer": "For admissions, you can apply through the Penn State website or Common App. The Admissions Office is located in the Swatara Building. You can contact them at hbgadmit@psu.edu."
   },
   {
     "keywords": [
@@ -134,4 +134,17 @@
     "keywords": ["police", "safety", "emergency", "911", "help", "security"],
     "answer": "In an emergency, dial 911. For non-emergencies, University Police can be reached at 717-948-6232. Their office is located in the Susquehanna Building."
   }
+  {
+    "keywords": [
+      "library", "books", "study", "quiet", "research"
+    ],
+    "answer": "The Penn State Harrisburg Library offers books, journals, databases, study spaces, and research help. It is located in the library building centrally on campus."
+  },
+  {
+    "keywords": [
+      "tech", "wifi", "internet", "computer", "it", "help desk"
+    ],
+    "answer": "Information Technology Services (ITS) is located in the Olmsted Building basement (E110). They help with accounts, Wi-Fi, and software."
+  }
 ]
+

@@ -1,122 +1,47 @@
 [
   {
-    "keywords": [
-      "penn",
-      "state",
-      "harrisburg",
-      "where",
-      "located",
-      "address",
-      "campus"
-    ],
+    "keywords": ["penn", "state", "harrisburg", "where", "located", "address", "campus"],
     "answer": "Penn State Harrisburg is located in Middletown, Pennsylvania near the Harrisburg International Airport."
   },
   {
-    "keywords": [
-      "admissions",
-      "apply",
-      "application",
-      "undergraduate",
-      "first year"
-    ],
+    "keywords": ["admissions", "apply", "application", "undergraduate", "first year", "gpa"],
     "answer": "For admissions, you can apply through the Penn State website or Common App. The Admissions Office is located in the Swatara Building. You can contact them at hbgadmit@psu.edu."
   },
   {
-    "keywords": [
-      "advising",
-      "academic advising",
-      "advisor",
-      "schedule",
-      "register classes"
-    ],
-    "answer": "The Academic Advisory building is located in the Olmstead Building's left wing, second floor. For other advisory purposes, students can request it online via email."
+    "keywords": ["library", "books", "study", "quiet", "research", "hours"],
+    "answer": "The Penn State Harrisburg Library offers books, journals, databases, study spaces, and research help. It is located in the library building centrally on campus."
   },
   {
-    "keywords": [
-      "advisor",
-      "advice",
-      "advisory",
-      "registration",
-      "register",
-      "classes",
-      "lionpath",
-      "add drop"
-    ],
-    "answer": "Information Technology Services at Penn State Harrisburg provides help with accounts, passwords, Wi-Fi, software, and classroom technology. You can contact the IT help desk by phone or email, or visit their office on campus right at the Olmstead building's basement floor. The 'Information Technology Services' page on the Harrisburg site lists contact info and help resources."
+    "keywords": ["advising", "academic advising", "advisor", "schedule", "register classes"],
+    "answer": "The Academic Advisory building is located in the Olmsted Building's left wing, second floor. For other advisory purposes, students can request it online via email."
   },
   {
-    "keywords": [
-      "student life",
-      "clubs",
-      "organizations",
-      "activities",
-      "involvement"
-    ],
-    "answer": "Student life at Penn State Harrisburg includes clubs, organizations, student government, cultural groups, academic clubs, and more. You can browse registered organizations and campus events through Student Affairs or the student engagement office at Harrisburg located in the Student Enrichment Center 1st floor."
+    "keywords": ["tech", "wifi", "internet", "computer", "it", "help desk", "password"],
+    "answer": "Information Technology Services (ITS) is located in the Olmsted Building basement (E110). They help with accounts, Wi-Fi, and software. You can contact the IT help desk by phone or email."
   },
   {
-    "keywords": [
-      "sports",
-      "athletics",
-      "intramural",
-      "recreation"
-    ],
-    "answer": "Penn State Harrisburg students have access to health and counseling resources, including mental health support, through Student Affairs and campus counseling services. For confidential support, appointments, and crisis resources, you can contact them via email or visit in person in the Student Enrichment Center 2nd floor."
+    "keywords": ["student life", "clubs", "organizations", "activities", "involvement"],
+    "answer": "Student life includes clubs, organizations, and student government. Visit the Student Enrichment Center (SEC) 1st floor or browse the campus website for events."
   },
   {
-    "keywords": [
-      "disability",
-      "accessibility",
-      "accommodations",
-      "student disability resources",
-      "sdr"
-    ],
-    "answer": "Students who need academic or housing accommodations at Penn State Harrisburg should contact Student Disability Resources (SDR). SDR works with students and faculty to arrange reasonable accommodations and support. You can also visit the Student Enrichment Center's 2nd floor to reach their office."
+    "keywords": ["sports", "athletics", "gym", "fitness", "recreation", "workout"],
+    "answer": "The campus has a fitness center and various intramural sports. The Capital Union Building (CUB) houses the gym and athletic facilities."
   },
   {
-    "keywords": [
-      "parking",
-      "permit",
-      "car",
-      "drive"
-    ],
-    "answer": "Most students who drive to Penn State Harrisburg need a parking permit. Parking is managed by the campus and/or university parking office. You can usually purchase permits and view parking maps online. The location of their office is in the Maintenance and Operations Building."
+    "keywords": ["health", "counseling", "mental", "doctor", "sick", "caps"],
+    "answer": "Health and counseling resources (CAPS) are available in the Student Enrichment Center, 2nd floor. They offer mental health support and medical referrals."
   },
   {
-    "keywords": [
-      "contact",
-      "phone",
-      "email",
-      "who do i call"
-    ],
-    "answer": "General contact information for Penn State Harrisburg, including phone numbers and emails for offices like Housing & Food Services, IT, Athletics, and International Programs, is available on the 'Contact Us' page of the Harrisburg website. That page lists many key offices with phone numbers and email addresses."
+    "keywords": ["disability", "accessibility", "accommodations", "sdr"],
+    "answer": "Student Disability Resources (SDR) is located in the Student Enrichment Center, 2nd floor. They help arrange academic and housing accommodations."
   },
   {
-    "keywords": [
-      "internship",
-      "co-op",
-      "career services",
-      "jobs"
-    ],
-    "answer": "Career Services at Penn State Harrisburg help students with internships, co-ops, job search, résumés, interviewing, and graduate school planning. You can also use Nittany Lion Careers to search for opportunities. Check the Harrisburg Career Services page for workshops, appointments, and resources. You can also contact them in person in the Student Enrichment Center 2nd floor."
+    "keywords": ["parking", "permit", "car", "drive", "ticket"],
+    "answer": "Most students need a parking permit. Visit the Parking Office in the Maintenance and Operations Building or buy permits online."
   },
   {
-    "keywords": [
-      "hello"
-    ],
-    "answer": "hello"
-  },
-  {
-    "keywords": [
-      "admission"
-    ],
-    "answer": "admissions"
-  },
-  {
-    "keywords": [
-      "hi"
-    ],
-    "answer": "ok"
+    "keywords": ["internship", "career", "jobs", "resume", "interview"],
+    "answer": "Career Services is located in the Student Enrichment Center, 2nd floor. They help with internships, resumes, and job searches via Nittany Lion Careers."
   },
   {
     "keywords": ["food", "eat", "hungry", "dining", "cafeteria", "stacks", "coffee"],
@@ -127,7 +52,7 @@
     "answer": "On-campus housing is available at 'The Village'. It creates a neighborhood-style living experience. You can contact the Housing Office in the Community Center."
   },
   {
-    "keywords": ["tuition", "cost", "money", "bill", "financial aid", "scholarship"],
+    "keywords": ["tuition", "cost", "money", "bill", "financial aid", "scholarship", "bursar"],
     "answer": "Tuition varies by residence and major. For questions about bills, scholarships, or FAFSA, visit the Bursar's Office or Financial Aid Office in the Swatara Building."
   },
   {
@@ -135,17 +60,7 @@
     "answer": "In an emergency, dial 911. For non-emergencies, University Police can be reached at 717-948-6232. Their office is located in the Susquehanna Building."
   },
   {
-    "keywords": [
-      "library", "books", "study", "quiet", "research"
-    ],
-    "answer": "The Penn State Harrisburg Library offers books, journals, databases, study spaces, and research help. It is located in the library building centrally on campus."
-  },
-  {
-    "keywords": [
-      "tech", "wifi", "internet", "computer", "it", "help desk"
-    ],
-    "answer": "Information Technology Services (ITS) is located in the Olmsted Building basement (E110). They help with accounts, Wi-Fi, and software."
-  },
+    "keywords": ["hello", "hi", "hey"],
+    "answer": "Hello! I am the Penn State Harrisburg Chatbot. How can I help you today?"
+  }
 ]
-
-

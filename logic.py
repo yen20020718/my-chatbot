@@ -45,7 +45,7 @@ def SearchKeyWord(text: str):
 
 def FindBestAnswer(user_input: str, knowledge_base):
     """
-    Find the best answer using Keyword Matching + Fuzzy Logic.
+    Find the best answer using Exact Match > Substring > Fuzzy Logic.
     """
     user_keywords = SearchKeyWord(user_input)
     if not user_keywords:
@@ -54,24 +54,46 @@ def FindBestAnswer(user_input: str, knowledge_base):
     best_score = 0
     best_entry = None
 
+    print(f"\n--- Debug: Analyzing '{user_input}' ---") # 除錯用：印出正在分析的句子
+
     for entry in knowledge_base:
-        entry_keywords = entry.get("keywords", [])
+        # 1. 確保資料庫關鍵字全部轉為小寫 (這是最常見的錯誤原因)
+        entry_keywords = [k.lower() for k in entry.get("keywords", [])]
         
-        # --- Fuzzy Matching Logic ---
         current_match_count = 0
+        
         for u_word in user_keywords:
-            # 檢查是否有完全相同 或 高度相似 (相似度 > 0.8) 的字
-            # n=1 代表只找最像的那一個
-            matches = difflib.get_close_matches(u_word, entry_keywords, n=1, cutoff=0.8)
+            # 檢查 1: 完全相同 (Exact Match)
+            if u_word in entry_keywords:
+                current_match_count += 1
+                continue # 命中就不往下檢查了
+
+            # 檢查 2: 包含關係 (Substring) - 解決單複數問題
+            # 例如: "admission" 在 "admissions" 裡面 -> 算分
+            if any(u_word in db_k or db_k in u_word for db_k in entry_keywords):
+                current_match_count += 1
+                continue
+
+            # 檢查 3: 模糊比對 (Fuzzy) - 解決拼錯字
+            # cutoff=0.75 代表只要 75% 像就算對 (原本 0.8 可能太嚴格)
+            matches = difflib.get_close_matches(u_word, entry_keywords, n=1, cutoff=0.75)
             if matches:
                 current_match_count += 1
-        
+                print(f"   (Fuzzy match: '{u_word}' -> '{matches[0]}')")
+
+        # 更新最佳分數
         if current_match_count > best_score:
             best_score = current_match_count
             best_entry = entry
 
+    # 除錯訊息
+    if best_entry:
+        print(f"Match Found! Score: {best_score}, Keywords: {best_entry['keywords']}")
+    else:
+        print("No match found.")
+
     # --- Confidence Threshold ---
-    # 如果關鍵字完全沒對中，或是匹配數量太少，就視為不知道
+    # 只要有對中至少 1 個關鍵字就回傳
     if best_score > 0:
         return best_entry, best_score
     else:
@@ -96,3 +118,4 @@ def UpdateNewTerms(user_question: str, user_answer: str, knowledge_base):
     knowledge_base.append(new_entry)
     saveDatabase(KNOWLEDGE_FILE, knowledge_base)
     return knowledge_base
+

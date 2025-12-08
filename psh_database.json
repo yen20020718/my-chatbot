@@ -118,4 +118,20 @@
     ],
     "answer": "ok"
   }
+  {
+    "keywords": ["food", "eat", "hungry", "dining", "cafeteria", "stacks", "coffee"],
+    "answer": "You can grab food at 'Stacks Market' in the Olmsted Building or 'The Outpost' in the Student Enrichment Center. There is also a Starbucks available on campus."
+  }
+  {
+    "keywords": ["housing", "dorm", "room", "live", "apartment", "village"],
+    "answer": "On-campus housing is available at 'The Village'. It creates a neighborhood-style living experience. You can contact the Housing Office in the Community Center."
+  }
+  {
+    "keywords": ["tuition", "cost", "money", "bill", "financial aid", "scholarship"],
+    "answer": "Tuition varies by residence and major. For questions about bills, scholarships, or FAFSA, visit the Bursar's Office or Financial Aid Office in the Swatara Building."
+  }
+  {
+    "keywords": ["police", "safety", "emergency", "911", "help", "security"],
+    "answer": "In an emergency, dial 911. For non-emergencies, University Police can be reached at 717-948-6232. Their office is located in the Susquehanna Building."
+  }
 ]

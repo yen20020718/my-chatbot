@@ -1,122 +1,81 @@
 import json
 import os
-import re
-import difflib 
-from datetime import datetime 
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_community.vectorstores import Chroma
+from langchain.docstore.document import Document
+from langchain.prompts import ChatPromptTemplate
 
+# 1. 設定 API Key (去 OpenAI 申請，或者換成其他免費的 LLM)
+os.environ["OPENAI_API_KEY"] = "sk-proj-xxxxxxxx..." 
+
+# 載入你的資料庫
 KNOWLEDGE_FILE = "psh_database.json"
 
-def loadDatabase(file_path: str = KNOWLEDGE_FILE):
-    """Load knowledge base from a JSON file."""
-    if not os.path.exists(file_path):
-        return []
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            if not isinstance(data, list):
-                return []
-            return data
-    except json.JSONDecodeError:
-        return []
-
-def saveDatabase(file_path: str, knowledge_base):
-    """Save the knowledge base back to the JSON file."""
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(knowledge_base, f, indent=2, ensure_ascii=False)
-
-def textReorganization(text: str) -> str:
-    """Lowercase and clean text."""
-    text = text.lower()
-    text = re.sub(r"[^a-z0-9\s]", " ", text)
-    text = re.sub(r"\s+", " ", text).strip()
-    return text
-
-def SearchKeyWord(text: str):
-    """Extract keywords from text."""
-    text = textReorganization(text)
-    tokens = text.split()
-    stopwords = {
-        "the", "is", "at", "on", "in", "a", "an", "and", "for",
-        "to", "of", "do", "i", "you", "how", "what", "where",
-        "when", "why", "can", "are", "please", "help", "me"
-    }
-    keywords = [t for t in tokens if t not in stopwords]
-    return keywords
-
-def FindBestAnswer(user_input: str, knowledge_base):
+def load_and_embed_data():
     """
-    Find the best answer using Exact Match > Substring (Length > 2) > Fuzzy Logic.
+    把 JSON 資料轉換成向量 (Vector) 並存入 ChromaDB
     """
-    user_keywords = SearchKeyWord(user_input)
-    if not user_keywords:
-        return None, 0
+    with open(KNOWLEDGE_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-    best_score = 0
-    best_entry = None
+    # 把 JSON 轉成 LangChain 看得懂的 Document 格式
+    documents = []
+    for entry in data:
+        # 我們把 "keywords" 和 "answer" 結合起來變成內容，讓 AI 理解整段話
+        text_content = f"Keywords: {', '.join(entry['keywords'])}\nAnswer: {entry['answer']}"
+        doc = Document(page_content=text_content, metadata={"answer": entry["answer"]})
+        documents.append(doc)
 
-    print(f"\n--- Debug: Analyzing '{user_input}' ---") 
+    # 建立向量資料庫 (使用 OpenAI 的 Embedding 模型)
+    # 這一步會把文字變成數字矩陣 (Vectors)
+    db = Chroma.from_documents(
+        documents, 
+        OpenAIEmbeddings(),
+        collection_name="psh_knowledge_base"
+    )
+    return db
 
-    for entry in knowledge_base:
-       
-        entry_keywords = [k.lower() for k in entry.get("keywords", [])]
-        
-        current_match_count = 0
-        
-        for u_word in user_keywords:
-            
-            if u_word in entry_keywords:
-                current_match_count += 1
-                continue 
+# 初始化資料庫 (全域變數，避免每次問問題都重跑)
+vector_db = load_and_embed_data()
+llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0) # 使用 GPT-3.5
 
-           
-            for db_k in entry_keywords:
-                if len(db_k) > 2 and (u_word in db_k or db_k in u_word):
-                    current_match_count += 1
-                   
-                    break 
-            matches = difflib.get_close_matches(u_word, entry_keywords, n=1, cutoff=0.8)
-            if matches:
-               
-                if matches[0] != u_word:
-                    current_match_count += 0.5 
-                    print(f"   (Fuzzy match: '{u_word}' -> '{matches[0]}')")
-
-       
-        if current_match_count > best_score:
-            best_score = current_match_count
-            best_entry = entry
-
-   
-    if best_entry:
-        print(f"Match Found! Score: {best_score}, Answer Keywords: {best_entry['keywords']}")
-    else:
-        print("No match found.")
-
-    # --- Confidence Threshold ---
-    if best_score > 0:
-        return best_entry, best_score
-    else:
-        return None, 0
-
-def UpdateNewTerms(user_question: str, user_answer: str, knowledge_base):
-    """Update database with new user-taught knowledge."""
-    new_keywords = SearchKeyWord(user_question)
-    if not new_keywords:
-        new_keywords = [user_question.lower()]
-
+def get_rag_response(user_question):
+    """
+    RAG 的核心流程
+    """
+    # 步驟 1: Retrieval (檢索)
+    # 找出跟使用者問題「語意最接近」的 1 筆資料 (k=1)
+    results = vector_db.similarity_search(user_question, k=1)
     
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if not results:
+        return "I'm sorry, I don't have information about that."
 
-    new_entry = {
-        "keywords": new_keywords,
-        "answer": user_answer,
-        "created_at": timestamp,
-        "source": "user_learning"
-    }
+    # 取得找到的「小抄」 (Context)
+    retrieved_context = results[0].page_content
+    
+    # 步驟 2: Augmentation (增強 - 提示工程 Prompt Engineering)
+    # 告訴 AI 你的角色，並限制它只能根據提供資料回答
+    prompt_template = ChatPromptTemplate.from_template("""
+    You are a helpful assistant for Penn State Harrisburg.
+    
+    Answer the user's question based ONLY on the following context:
+    {context}
+    
+    If the answer is not in the context, say "I don't know the answer to that based on my database."
+    
+    User Question: {question}
+    """)
+    
+    # 步驟 3: Generation (生成)
+    prompt = prompt_template.format_messages(
+        context=retrieved_context,
+        question=user_question
+    )
+    
+    response = llm.invoke(prompt)
+    return response.content
 
-    knowledge_base.append(new_entry)
-    saveDatabase(KNOWLEDGE_FILE, knowledge_base)
-    return knowledge_base
-
-
-
+# --- 測試區 ---
+if __name__ == "__main__":
+    # 測試語意理解 (注意：原本的程式會失敗，因為沒 tuition 這個字)
+    print(get_rag_response("How much do I need to pay for school?"))

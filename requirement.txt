@@ -7,3 +7,4 @@ chromadb
 beautifulsoup4
 openai
 tiktoken
+pysqlite3-binary

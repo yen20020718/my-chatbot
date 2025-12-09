@@ -4,7 +4,6 @@ langchain-community
 langchain-openai
 langchain-core
 chromadb
-beautifulsoup4
 openai
 tiktoken
 pysqlite3-binary

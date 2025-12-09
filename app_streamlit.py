@@ -148,7 +148,7 @@ if "knowledge_base" not in st.session_state:
 vector_db, llm = init_ai_system(st.session_state["knowledge_base"])
 
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [{"role": "assistant", "content": "Hi! I am ready. (Mode: Hybrid RAG)"}]
+    st.session_state["messages"] = [{"role": "assistant", "content": "Hi! I am ready. "}]
 
 if "awaiting_answer" not in st.session_state:
     st.session_state["awaiting_answer"] = False
@@ -211,4 +211,5 @@ if user_input := st.chat_input("Ask about PSH..."):
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant"):
         st.write(response)
+
 

@@ -4,7 +4,15 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.chains import RetrievalQA
+# --- 修正 Streamlit Cloud 上 SQLite 版本過舊的問題 ---
+import sys
+import pysqlite3
+sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+# ------------------------------------------------
 
+import os
+from langchain_community.document_loaders import WebBaseLoader
+# ... (下面維持你原本的程式碼)
 # 設定 API Key (Streamlit Cloud 建議用 secrets 管理，這裡先寫死測試，請小心不要外洩)
 os.environ["OPENAI_API_KEY"] = "sk-..." # 記得填入你的 Key
 

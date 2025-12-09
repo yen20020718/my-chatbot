@@ -1,74 +1,94 @@
+import json
 import os
-from langchain_community.document_loaders import WebBaseLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-from langchain.chains import RetrievalQA
+import re
+import difflib
+from datetime import datetime
 
-# 1. 設定你的 OpenAI API Key (必須要有這個才能讓 AI 讀懂網頁)
-os.environ["OPENAI_API_KEY"] = "你的_sk_開頭的_API_Key"
+KNOWLEDGE_FILE = "psh_database.json"
 
-# 2. 定義你要讓機器人「學習」的網址清單
-# 這裡我放了幾個 Penn State Harrisburg 重要的頁面
-URLS = [
-    "https://harrisburg.psu.edu/admissions",           # 招生
-    "https://harrisburg.psu.edu/tuition-and-financial-aid", # 學費
-    "https://harrisburg.psu.edu/housing",              # 住宿
-    "https://harrisburg.psu.edu/library",              # 圖書館
-    "https://harrisburg.psu.edu/its"                   # IT 部門
-]
-
-def build_web_knowledge_base():
-    """
-    這是一次性的：去爬取網頁、切割文字、存入向量資料庫
-    """
-    print("正在讀取學校網站資料，請稍等...")
-    
-    # A. 爬取網頁 (Load)
-    loader = WebBaseLoader(URLS)
-    data = loader.load()
-    
-    # B. 切割文字 (Split)
-    # 網頁內容很長，必須切成小塊，每塊 1000 字，重疊 200 字以便保持語意連貫
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    all_splits = text_splitter.split_documents(data)
-    
-    # C. 存入向量資料庫 (Vector Store)
-    # 這一步會把文字變成數學向量
-    vector_db = Chroma.from_documents(
-        documents=all_splits, 
-        embedding=OpenAIEmbeddings(),
-        collection_name="psh_web_data"
-    )
-    
-    print("資料庫建立完成！")
-    return vector_db
-
-# 初始化系統 (全域變數)
-# 注意：第一次執行會花幾秒鐘爬網頁
-db = build_web_knowledge_base()
-llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
-
-# 設定檢索鍊 (Retrieval Chain)
-qa_chain = RetrievalQA.from_chain_type(
-    llm=llm, 
-    chain_type="stuff", 
-    retriever=db.as_retriever()
-)
-
-def ask_website(question: str):
-    """
-    接收使用者問題，從網頁資料找答案
-    """
+def loadDatabase(file_path: str = KNOWLEDGE_FILE):
+    if not os.path.exists(file_path):
+        return []
     try:
-        response = qa_chain.invoke(question)
-        return response['result']
-    except Exception as e:
-        return f"發生錯誤: {e}"
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if not isinstance(data, list):
+                return []
+            return data
+    except json.JSONDecodeError:
+        return []
 
-# --- 測試區 ---
-if __name__ == "__main__":
-    # 測試一個原本 JSON 裡很難回答的複雜問題
-    user_q = "What are the housing options for first-year students?"
-    print(f"問: {user_q}")
-    print(f"答: {ask_website(user_q)}")
+def saveDatabase(file_path: str, knowledge_base):
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(knowledge_base, f, indent=2, ensure_ascii=False)
+
+def textReorganization(text: str) -> str:
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+def SearchKeyWord(text: str):
+    text = textReorganization(text)
+    tokens = text.split()
+    stopwords = {
+        "the", "is", "at", "on", "in", "a", "an", "and", "for",
+        "to", "of", "do", "i", "you", "how", "what", "where",
+        "when", "why", "can", "are", "please", "help", "me"
+    }
+    keywords = [t for t in tokens if t not in stopwords]
+    return keywords
+
+def FindBestAnswer(user_input: str, knowledge_base):
+    user_keywords = SearchKeyWord(user_input)
+    if not user_keywords:
+        return None, 0
+
+    best_score = 0
+    best_entry = None
+
+    for entry in knowledge_base:
+        entry_keywords = [k.lower() for k in entry.get("keywords", [])]
+        current_match_count = 0
+        
+        for u_word in user_keywords:
+            if u_word in entry_keywords:
+                current_match_count += 1
+                continue 
+
+            for db_k in entry_keywords:
+                if len(db_k) > 2 and (u_word in db_k or db_k in u_word):
+                    current_match_count += 1
+                    break 
+
+            matches = difflib.get_close_matches(u_word, entry_keywords, n=1, cutoff=0.75)
+            if matches:
+                if matches[0] != u_word:
+                    current_match_count += 0.5 
+
+        if current_match_count > best_score:
+            best_score = current_match_count
+            best_entry = entry
+
+    if best_score > 0:
+        return best_entry, best_score
+    else:
+        return None, 0
+
+def UpdateNewTerms(user_question: str, user_answer: str, knowledge_base):
+    new_keywords = SearchKeyWord(user_question)
+    if not new_keywords:
+        new_keywords = [user_question.lower()]
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    new_entry = {
+        "keywords": new_keywords,
+        "answer": user_answer,
+        "created_at": timestamp,
+        "source": "user_learning"
+    }
+
+    knowledge_base.append(new_entry)
+    saveDatabase(KNOWLEDGE_FILE, knowledge_base)
+    return knowledge_base

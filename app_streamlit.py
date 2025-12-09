@@ -1,8 +1,11 @@
-# --- 1. Streamlit Cloud SQLite Fix (必須放在最上面) ---
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-# ----------------------------------------------------
+# --- Streamlit Cloud SQLite Fix ---
+try:
+    __import__('pysqlite3')
+    import sys
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+except ImportError:
+    pass  # 如果沒有 pysqlite3 就跳過，使用系統預設的
+# ----------------------------------
 
 import streamlit as st
 import json
@@ -208,3 +211,4 @@ if user_input := st.chat_input("Ask about PSH..."):
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant"):
         st.write(response)
+

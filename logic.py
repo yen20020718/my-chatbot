@@ -1,81 +1,74 @@
-import json
 import os
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_community.document_loaders import WebBaseLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-from langchain.docstore.document import Document
-from langchain.prompts import ChatPromptTemplate
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain.chains import RetrievalQA
 
-# 1. 設定 API Key (去 OpenAI 申請，或者換成其他免費的 LLM)
-os.environ["OPENAI_API_KEY"] = "sk-proj-xxxxxxxx..." 
+# 1. 設定你的 OpenAI API Key (必須要有這個才能讓 AI 讀懂網頁)
+os.environ["OPENAI_API_KEY"] = "你的_sk_開頭的_API_Key"
 
-# 載入你的資料庫
-KNOWLEDGE_FILE = "psh_database.json"
+# 2. 定義你要讓機器人「學習」的網址清單
+# 這裡我放了幾個 Penn State Harrisburg 重要的頁面
+URLS = [
+    "https://harrisburg.psu.edu/admissions",           # 招生
+    "https://harrisburg.psu.edu/tuition-and-financial-aid", # 學費
+    "https://harrisburg.psu.edu/housing",              # 住宿
+    "https://harrisburg.psu.edu/library",              # 圖書館
+    "https://harrisburg.psu.edu/its"                   # IT 部門
+]
 
-def load_and_embed_data():
+def build_web_knowledge_base():
     """
-    把 JSON 資料轉換成向量 (Vector) 並存入 ChromaDB
+    這是一次性的：去爬取網頁、切割文字、存入向量資料庫
     """
-    with open(KNOWLEDGE_FILE, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    # 把 JSON 轉成 LangChain 看得懂的 Document 格式
-    documents = []
-    for entry in data:
-        # 我們把 "keywords" 和 "answer" 結合起來變成內容，讓 AI 理解整段話
-        text_content = f"Keywords: {', '.join(entry['keywords'])}\nAnswer: {entry['answer']}"
-        doc = Document(page_content=text_content, metadata={"answer": entry["answer"]})
-        documents.append(doc)
-
-    # 建立向量資料庫 (使用 OpenAI 的 Embedding 模型)
-    # 這一步會把文字變成數字矩陣 (Vectors)
-    db = Chroma.from_documents(
-        documents, 
-        OpenAIEmbeddings(),
-        collection_name="psh_knowledge_base"
-    )
-    return db
-
-# 初始化資料庫 (全域變數，避免每次問問題都重跑)
-vector_db = load_and_embed_data()
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0) # 使用 GPT-3.5
-
-def get_rag_response(user_question):
-    """
-    RAG 的核心流程
-    """
-    # 步驟 1: Retrieval (檢索)
-    # 找出跟使用者問題「語意最接近」的 1 筆資料 (k=1)
-    results = vector_db.similarity_search(user_question, k=1)
+    print("正在讀取學校網站資料，請稍等...")
     
-    if not results:
-        return "I'm sorry, I don't have information about that."
-
-    # 取得找到的「小抄」 (Context)
-    retrieved_context = results[0].page_content
+    # A. 爬取網頁 (Load)
+    loader = WebBaseLoader(URLS)
+    data = loader.load()
     
-    # 步驟 2: Augmentation (增強 - 提示工程 Prompt Engineering)
-    # 告訴 AI 你的角色，並限制它只能根據提供資料回答
-    prompt_template = ChatPromptTemplate.from_template("""
-    You are a helpful assistant for Penn State Harrisburg.
+    # B. 切割文字 (Split)
+    # 網頁內容很長，必須切成小塊，每塊 1000 字，重疊 200 字以便保持語意連貫
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    all_splits = text_splitter.split_documents(data)
     
-    Answer the user's question based ONLY on the following context:
-    {context}
-    
-    If the answer is not in the context, say "I don't know the answer to that based on my database."
-    
-    User Question: {question}
-    """)
-    
-    # 步驟 3: Generation (生成)
-    prompt = prompt_template.format_messages(
-        context=retrieved_context,
-        question=user_question
+    # C. 存入向量資料庫 (Vector Store)
+    # 這一步會把文字變成數學向量
+    vector_db = Chroma.from_documents(
+        documents=all_splits, 
+        embedding=OpenAIEmbeddings(),
+        collection_name="psh_web_data"
     )
     
-    response = llm.invoke(prompt)
-    return response.content
+    print("資料庫建立完成！")
+    return vector_db
+
+# 初始化系統 (全域變數)
+# 注意：第一次執行會花幾秒鐘爬網頁
+db = build_web_knowledge_base()
+llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+
+# 設定檢索鍊 (Retrieval Chain)
+qa_chain = RetrievalQA.from_chain_type(
+    llm=llm, 
+    chain_type="stuff", 
+    retriever=db.as_retriever()
+)
+
+def ask_website(question: str):
+    """
+    接收使用者問題，從網頁資料找答案
+    """
+    try:
+        response = qa_chain.invoke(question)
+        return response['result']
+    except Exception as e:
+        return f"發生錯誤: {e}"
 
 # --- 測試區 ---
 if __name__ == "__main__":
-    # 測試語意理解 (注意：原本的程式會失敗，因為沒 tuition 這個字)
-    print(get_rag_response("How much do I need to pay for school?"))
+    # 測試一個原本 JSON 裡很難回答的複雜問題
+    user_q = "What are the housing options for first-year students?"
+    print(f"問: {user_q}")
+    print(f"答: {ask_website(user_q)}")
